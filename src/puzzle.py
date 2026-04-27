@@ -153,6 +153,14 @@ class Puzzle:
         """Retorna el hash SHA256 en hexadecimal del JSON sense indentació."""
         return hashlib.sha256(self.to_json().encode()).hexdigest()
 
+    def get_goals(self) -> tuple[tuple[int, Coord], ...]:
+        """Retorna els objectius"""
+        return self.goals
+
+    def get_initial_position(self) -> State:
+        """Retorna la posició inicial"""
+        return self.start
+
     @classmethod
     def from_json(cls, s: str) -> Puzzle:
         """Crea un Puzzle a partir d'un string JSON."""

@@ -13,11 +13,6 @@ def is_win(node: FastState, goals: tuple[tuple[int, Coord], ...]) -> bool:
     """Determina si l'estat (node) és guanyador"""
     for g in goals:
         if node[g[0]][0] != g[1][0] or node[g[0]][1] != g[1][1]:
-            print(node)
-            print(node[g[0]][0])
-            print(g[1][0])
-            print(node[g[0]][1])
-            print(g[1][1])
             return False
     return True
 
@@ -51,24 +46,17 @@ def moves_to_json(moves: list[Move], output_file: str) -> None:
 
 def solve(graph: gt.Graph, puzzle: Puzzle, output_file: str) -> None:
     
-    """Donat un graf de graph-tool i el puzzle, realitza un bfs per resoldre el puzzle i guarda el json a output_file"""
-    
-    import time
-    
-    
+    """Donat un graf de graph-tool i el puzzle, realitza un bfs per resoldre el puzzle i guarda el json a output_file"""   
     winning_states: list[FastState] = []
     for node in graph.vertices():
-        if is_win(graph.vp["state"][node], puzzle.get_goals()):
+        if is_win(json.loads(graph.vp["state"][node]), puzzle.get_goals()):
             winning_states.append(node)
-            print("WIN")
-            exit()
-
-    print(len(winning_states))
 
     # we create a "won" state
     win_node = graph.add_vertex()
     for node in winning_states:
-        graph.add_edge(win_node, node)
+        #graph.add_edge(win_node, node)
+        graph.add_edge(node, win_node)
 
     start_node = graph.vertex(0)
 
@@ -76,7 +64,6 @@ def solve(graph: gt.Graph, puzzle: Puzzle, output_file: str) -> None:
     _, full_edge_path = gt.shortest_path(graph, start_node, win_node)
 
     edge_path = full_edge_path[:-1]  # remove win node
-    print(len(edge_path))
 
     moves = extract_moves(graph, edge_path)
 

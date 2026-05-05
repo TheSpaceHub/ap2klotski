@@ -64,6 +64,10 @@ class Piece:
     def to_json(self) -> str:
         """Retorna la representació JSON de la peça (llista de coordenades)."""
         return json.dumps(self._to_obj())
+    
+    def get_coords(self) -> tuple[Coord, ...]:
+        """Retorna les coordenades"""
+        return self.coords
 
 
 @dataclass(frozen=True)
@@ -81,6 +85,10 @@ class State:
     def to_json(self) -> str:
         """Retorna la llista de posicions en JSON."""
         return json.dumps(self._to_obj())
+    
+    def get_positions(self) -> tuple[Coord, ...]:
+        """Retorna les posicions"""
+        return self.positions
 
 
 @dataclass(frozen=True)
@@ -157,9 +165,21 @@ class Puzzle:
         """Retorna els objectius"""
         return self.goals
 
-    def get_initial_position(self) -> State:
+    def get_start(self) -> State:
         """Retorna la posició inicial"""
         return self.start
+    
+    def get_width(self) -> int:
+        return self.W
+    
+    def get_height(self) -> int:
+        return self.H
+
+    def get_walls(self) -> tuple[Coord, ...]:
+        return self.walls
+    
+    def get_pieces(self) -> tuple[Piece, ...]:
+        return self.pieces
 
     @classmethod
     def from_json(cls, s: str) -> Puzzle:

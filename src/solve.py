@@ -22,7 +22,7 @@ def extract_moves(g: gt.Graph, e_path) -> list[Move]:
     Donat el graf i el camí d'arestes retorna els moviments fets
     """
 
-    # Access the property maps bound to the graph
+    # access the property maps bound to the graph
     ep_piece = g.edge_properties["piece"]
     ep_dir = g.edge_properties["dir"]
 
@@ -44,9 +44,8 @@ def moves_to_json(moves: list[Move], output_file: str) -> None:
         json.dump(moves, f)
 
 
-def solve(graph: gt.Graph, puzzle: Puzzle, output_file: str) -> None:
-    
-    """Donat un graf de graph-tool i el puzzle, realitza un bfs per resoldre el puzzle i guarda el json a output_file"""   
+def solve(graph: gt.Graph, puzzle: Puzzle, output_file: str, export=True) -> list[Move]:
+    """Donat un graf de graph-tool i el puzzle, realitza un bfs per resoldre el puzzle i guarda el json a output_file"""
     winning_states: list[FastState] = []
     for node in graph.vertices():
         if is_win(json.loads(graph.vp["state"][node]), puzzle.get_goals()):
@@ -55,7 +54,6 @@ def solve(graph: gt.Graph, puzzle: Puzzle, output_file: str) -> None:
     # we create a "won" state
     win_node = graph.add_vertex()
     for node in winning_states:
-        #graph.add_edge(win_node, node)
         graph.add_edge(node, win_node)
 
     start_node = graph.vertex(0)
@@ -67,7 +65,9 @@ def solve(graph: gt.Graph, puzzle: Puzzle, output_file: str) -> None:
 
     moves = extract_moves(graph, edge_path)
 
-    moves_to_json(moves, output_file)
+    if export:
+        moves_to_json(moves, output_file)
+    return moves
 
 
 if __name__ == "__main__":

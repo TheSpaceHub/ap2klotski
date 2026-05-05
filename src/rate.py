@@ -25,7 +25,7 @@ def rate_puzzle(puzzle_id, rating):
     """Envia la valoració d'un puzzle al servidor."""
     token = get_token()
     puzzle_id = puzzle_id.strip()
-    url = f"{BASE_URL}/api/puzzles/{puzzle_id}/stars"
+    url = f"{BASE_URL}/api/puzzles/{puzzle_id}/votes"
     
     # El format de dades net
     dades = json.dumps({"stars": rating}).encode('utf-8')

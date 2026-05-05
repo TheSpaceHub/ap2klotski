@@ -76,7 +76,7 @@ if __name__ == "__main__":
         puzzle_file = Path(sys.argv[2])
         puzzle = Puzzle.from_json(puzzle_file.read_text())
         graph = gt.load_graph(graph_file)
-        solve(graph, puzzle, str(puzzle_file)[:-5] + "_moves.json")
+        solve(graph, puzzle, str(puzzle_file)[:-5] + ".moves.json")
     else:
         print("Usage: solve.py <graph_file> <puzzle_file>")
         print(sys.argv)

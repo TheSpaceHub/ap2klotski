@@ -230,7 +230,7 @@ def shortest_solution(puzzle: Puzzle, max_depth: int = DEFAULT_MAX_DEPTH) -> int
         if depth >= max_depth:
             continue
 
-        mat = build_state_matrix(current, base_matrix, pieces)
+        mat = build_state_matrix(current, base_matrix, pieces, W)
         for piece_id, (px, py) in enumerate(current):
             shape = pieces[piece_id]
             for dx, dy in MOVE_DELTAS:

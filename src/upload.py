@@ -4,11 +4,15 @@ import urllib.request
 import urllib.error
 import os
 import ssl
+from pathlib import Path
+
+from puzzle import Puzzle
 
 # Desactivem la verificació SSL de forma global (necessari en alguns entorns macOS)
 ssl._create_default_https_context = ssl._create_unverified_context
 
 BASE_URL = "https://klotski.pauek.dev"
+
 
 def get_token():
     """Llegeix el token d'autenticació des del fitxer token.txt."""
@@ -16,25 +20,20 @@ def get_token():
     if not os.path.exists(token_path):
         print(f"❌ Error: No s'ha trobat el fitxer '{token_path}'.")
         sys.exit(1)
-        
-    with open(token_path, 'r') as f:
+
+    with open(token_path, "r") as f:
         # El .strip() elimina possibles salts de línia o espais invisibles
         return f.read().strip()
 
-def rate_puzzle(puzzle_id, rating):
-    """Envia la valoració d'un puzzle al servidor."""
-    token = get_token()
-    puzzle_id = puzzle_id.strip()
-    url = f"{BASE_URL}/api/puzzles/{puzzle_id}/votes"
 
-    if abs(int(rating) - rating) > 1e-3:
-        print("Atenció: el rating per al puzzle {puzzle_id} no és enter, arrodonint...")
-    
-    rating = int(rating)
-    
+def upload_puzzle(puzzle: Puzzle):
+    """Envia un puzzle al servidor."""
+    token = get_token()
+    url = f"{BASE_URL}/api/puzzles"
+
     # El format de dades net
-    dades = json.dumps({"stars": rating}).encode('utf-8')
-    
+    dades = puzzle.to_json().encode("utf-8")
+
     req = urllib.request.Request(
         url,
         data=dades,
@@ -42,17 +41,15 @@ def rate_puzzle(puzzle_id, rating):
         headers={
             "Content-Type": "application/json",
             "Authorization": f"Bearer {token}",
-            "User-Agent": "Mozilla/5.0"
-        }
+            "User-Agent": "Mozilla/5.0",
+        },
     )
-    
-    print(f"📡 Enviant {rating} estrelles al puzzle: {puzzle_id[:8]}...")
-    
+
     try:
         with urllib.request.urlopen(req) as response:
             if response.status in (200, 201):
-                print(f"✅ Èxit! Valoració enviada correctament.")
-                
+                print(f"✅ Èxit! Puzzle enviat correctament.")
+
     except urllib.error.HTTPError as e:
         print(f"❌ Error HTTP {e.code}: {e.reason}")
         try:
@@ -64,22 +61,23 @@ def rate_puzzle(puzzle_id, rating):
     except Exception as e:
         print(f"❌ Error inesperat de connexió: {e}")
 
+
 def main():
-    if len(sys.argv) != 3:
-        print("Ús: python src/rate.py <ID_del_puzzle> <valoració_0_a_5>")
+    if len(sys.argv) != 2:
+        print("Ús: python src/upload.py <puzzle.json>")
         sys.exit(1)
-        
-    puzzle_id = sys.argv[1]
-    
+
+    filepath_str = sys.argv[1]
+    filepath = Path(filepath_str)
+
     try:
-        rating = float(sys.argv[2])
-        if rating < 0.0 or rating > 5.0:
-            raise ValueError()
-    except ValueError:
-        print("❌ Error: La valoració ha de ser un número decimal entre 0.0 i 5.0")
+        puzzle = Puzzle.from_json(filepath.read_text())
+    except Exception as e:
+        print(f"Error en llegir el puzzle: {e}")
         sys.exit(1)
-        
-    rate_puzzle(puzzle_id, rating)
+
+    upload_puzzle(puzzle)
+
 
 if __name__ == "__main__":
     main()
